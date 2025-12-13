@@ -1,0 +1,10 @@
+cohere
+python-dotenv
+ipywidgets
+scikit-learn
+chromadb
+langchain
+langchain_community
+fastapi
+uvicorn
+pydantic
