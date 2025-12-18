@@ -1,4 +1,5 @@
 cohere
+motor
 python-dotenv
 ipywidgets
 scikit-learn
@@ -8,3 +9,6 @@ langchain_community
 fastapi
 uvicorn
 pydantic
+pydantic-settings 
+python-multipart
+pymongo

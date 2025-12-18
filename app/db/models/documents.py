@@ -4,7 +4,7 @@ from datetime import datetime
 import uuid
 
 # Clase de Documento para MongoDB
-class DocumentDAO(BaseModel):
+class UserDocumentDB (BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id") # Generamos un UUID automático si no viene uno.
     filename: str
     file_path: str
