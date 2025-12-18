@@ -67,3 +67,11 @@
 2025-12-18 16:44:53 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Iniciando upload para: NOM_ISO_9001-2015.pdf
 2025-12-18 16:44:53 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Archivo físico ya existía (Deduplicación): data/files\96c6f5bef1e593b21ecc97b89aba870912493be00b900aad8a6031e8999d5069_NOM_ISO_9001-2015.pdf
 2025-12-18 16:44:53 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Documento duplicado detectado. Retornando existente.
+2025-12-18 17:57:26 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Conexión a MongoDB iniciada: Get-Talent
+2025-12-18 17:57:52 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Conexión a MongoDB iniciada: Get-Talent
+2025-12-18 17:58:11 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Conexión a MongoDB iniciada: Get-Talent
+2025-12-18 17:58:31 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Conexión a MongoDB iniciada: Get-Talent
+2025-12-18 17:58:32 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Conexión a MongoDB iniciada: Get-Talent
+2025-12-18 17:59:24 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Iniciando upload para: norma-ISO-27001_2022_NOEDER.pdf
+2025-12-18 17:59:24 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Archivo guardado en disco: data/files\08729218f04ef9270571ce9cdf1638514da7c6b85a3743fb49215c917fd70836_norma-ISO-27001_2022_NOEDER.pdf
+2025-12-18 17:59:25 - INFO - [RAG-ISO-COMPLIANCE-AUDITOR] - Documento duplicado detectado. Retornando existente.

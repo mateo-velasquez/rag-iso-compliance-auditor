@@ -54,11 +54,8 @@ class DocumentRepository:
         )
         Logger.add_to_log("info", f"Estado del documento {id} actualizado a: {status}")
 
-    # --- BORRADO (Soft Delete) ---
+    # Borrado lógico: No elimina el registro, solo lo marca como inactivo.
     async def delete_by_id(self, id: str):
-        """
-        Borrado Lógico: No elimina el registro, solo lo marca como inactivo.
-        """
         result = await self.collection.update_one(
             {"_id": id},
             {
