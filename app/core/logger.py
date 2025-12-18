@@ -15,7 +15,7 @@ class Logger:
             return cls._logger
 
         # Configuración de Directorios (Evita error si no existe la carpeta)
-        log_directory = "utils/logs"
+        log_directory = "logs"
         log_filename = "app.log"
         
         if not os.path.exists(log_directory):

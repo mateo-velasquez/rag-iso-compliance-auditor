@@ -15,11 +15,11 @@ class DocumentRepository:
         result = await self.collection.insert_one(doc_dict)
         Logger.add_to_log("debug", f"Documento insertado en Mongo ID: {result.inserted_id}")
         return document
-    
+
     # Busca si ya existe un archivo activo con ese hash
     async def get_by_hash(self, file_hash: str):
         return await self.collection.find_one({"file_hash": file_hash, "is_active": True})
-    
+
     # Busca un documento por su ID
     async def get_by_id(self, id: str):
         return await self.collection.find_one({
@@ -31,12 +31,13 @@ class DocumentRepository:
     async def update(self, id: str, update_data: dict):
         # Siempre actualizamos la fecha de modificación
         update_data["update_date"] = datetime.now(timezone.utc)
-        
+
         result = await self.collection.update_one(
             {"_id": id},
             {"$set": update_data}
         )
         Logger.add_to_log("debug", f"Documento insertado en CromaDB ID: {result.upserted_id}")
+
         return result.modified_count > 0
 
     # Método auxiliar para cambiar estado (PATCH)
@@ -54,11 +55,8 @@ class DocumentRepository:
         )
         Logger.add_to_log("info", f"Estado del documento {id} actualizado a: {status}")
 
-    # --- BORRADO (Soft Delete) ---
+    # Borrado lógico: No elimina el registro, solo lo marca como inactivo.
     async def delete_by_id(self, id: str):
-        """
-        Borrado Lógico: No elimina el registro, solo lo marca como inactivo.
-        """
         result = await self.collection.update_one(
             {"_id": id},
             {
@@ -69,10 +67,44 @@ class DocumentRepository:
                 }
             }
         )
-        
+
         if result.modified_count > 0:
             Logger.add_to_log("info", f"Documento {id} eliminado lógicamente (Soft Delete).")
             return True
         else:
             Logger.add_to_log("warning", f"Intento de borrar documento {id} fallido o no encontrado.")
             return False
+
+    # Método para traer todos los archivos no borrados
+    async def get_all_active(self):
+        # Busamos solo los que tienen is_active = True y ordena descendente (más nuevo primero)
+        cursor = self.collection.find({"is_active": True}).sort("upload_date", -1)
+        documents = await cursor.to_list(length=None) # Convertimos el cursor a una lista de Python
+
+        for doc in documents:
+            doc["id"] = str(doc["_id"])
+
+        return documents
+    
+    # Busca si existe un archivo con ese hash, aunque esté borrado (is_active=False)
+    async def get_deleted_by_hash(self, file_hash: str):
+        return await self.collection.find_one({
+            "file_hash": file_hash, 
+            "is_active": False 
+        })
+    
+    # Método para reactivar un documento borrado
+    async def reactivate(self, id: str):
+        from datetime import datetime, timezone
+        result = await self.collection.update_one(
+            {"_id": id},
+            {
+                "$set": {
+                    "is_active": True,
+                    "deleted_date": None, # Limpiamos la fecha de borrado
+                    "update_date": datetime.now(timezone.utc),
+                    "status": "pending" # Reseteamos el status para que se vuelva a procesar si es necesario
+                }
+            }
+        )
+        return result.modified_count > 0
