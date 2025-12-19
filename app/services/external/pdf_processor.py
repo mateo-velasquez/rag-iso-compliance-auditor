@@ -51,6 +51,12 @@ class PDFProcessor:
                 text = page.extract_text()
                 # Solo agregamos si hay texto real (evitamos páginas vacías)
                 if text:
+                    # Reemplazamos saltos de línea por espacios
+                    clean_text = text.replace('\n', ' ')
+                    
+                    # Eliminamos espacios dobles (ej: "hola  mundo" -> "hola mundo")
+                    clean_text = " ".join(clean_text.split())
+
                     text_content.append(text)
             
             # Unimos todo el texto con saltos de línea
@@ -63,3 +69,4 @@ class PDFProcessor:
             Logger.add_to_log("error", f"Fallo al leer el PDF: {e}")
             # Retornamos string vacío para no romper el flujo, pero con log de error
             return ""
+        
