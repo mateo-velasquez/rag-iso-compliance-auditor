@@ -39,11 +39,42 @@ class DocumentManager:
         if not full_text:
             Logger.add_to_log("warning", f"El archivo {doc_id} no tiene texto extraíble.")
             return
+        
+        # Aca comienzo a hacer la división en chunks, así que inicializo algunas variables:
+        CHUNK_SIZE = 500
+        OVERLAP = 50
+        chunks = []
+        ids = []
+        metadatas = []
+        start = 0
+        text_len = len(full_text)
 
-        # Preparamos los datos para ChromaDB
-        chunks = [full_text]
-        ids = [doc_id]
-        metadatas = [{"document_id": doc_id, "filename": filename}]
+        # Ventana Deslizante: Cortamos y avanzamos, pero retrocedemos un poco (overlap)
+        while start < text_len:
+            end = min(start + CHUNK_SIZE, text_len) # Calculamos el final del corte actual
+            
+            chunk_text = full_text[start:end] # Extraemos el fragmento de texto
+            
+            chunks.append(chunk_text) # Guardamos los datos en las listas
+            
+            # Generamos un ID único para cada pedacito (ej: "doc123_0", "doc123_1")
+            ids.append(f"{doc_id}_{len(chunks)}")
+            
+            # Guardamos metadata para saber a qué archivo pertenece este pedazo
+            metadatas.append({
+                "document_id": doc_id, 
+                "filename": filename,
+                "chunk_index": len(chunks)
+            })
+
+            # Condición de salida para evitar bucles infinitos al final del texto
+            if end == text_len:
+                break
+            
+            # Avanzamos el cursor: Tamaño del chunk menos el overlap (Si tamaño=500 y overlap=50, avanzamos 450 caracteres)
+            start += CHUNK_SIZE - OVERLAP
+            
+        Logger.add_to_log("info", f"Texto dividido en {len(chunks)} fragmentos de {CHUNK_SIZE} chars (overlap {OVERLAP}).")
 
         # Guardamos en el repositorio
         self.vector_repo.add_chunks(chunks, metadatas, ids)
@@ -148,4 +179,3 @@ class DocumentManager:
             message="Documento borrado correctamente",
             document_id=doc_id
         )
-    
