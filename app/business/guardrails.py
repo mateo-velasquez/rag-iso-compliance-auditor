@@ -68,7 +68,7 @@ class Guardrails:
             return True, ""
             
         else:
-            Logger.add_to_log("warning", "Se ha bloqueado la entrada de una pregunta. Razón: {razon_analisis}")
+            Logger.add_to_log("warning", f"Se ha bloqueado la entrada de una pregunta. Razón: {razon_analisis}")
             # Retornamos False y la razón del bloqueo para mostrársela al usuario.
             return False, razon_analisis
 
