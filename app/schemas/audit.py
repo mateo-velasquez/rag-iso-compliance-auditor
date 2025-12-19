@@ -2,15 +2,22 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
-# Validamos que no estén vacíos usando Field
+# Modelo para la entrada de la búsqueda (Request)
+class SearchQuery(BaseModel):
+    query: str      # La pregunta o término a buscar
+    k: int = 3      # Cantidad de resultados deseados (Top-K)
 
-# Embeddings (Generación de Vectores)
-class GenerateEmbeddingsRequest(BaseModel):
-    document_id: str = Field(..., description="ID del documento a procesar")
-
-class GenerateEmbeddingsResponse(BaseModel):
-    message: str
+# Modelo para cada resultado encontrado (Response Item)
+class SearchResult(BaseModel):
     document_id: str
+    filename: str
+    content_snippet: str
+    similarity_score: float
+
+# Modelo para la respuesta de la auditoría (Chatbot) - Placeholder para futuro
+class AuditResponse(BaseModel):
+    answer: str
+    sources: List[SearchResult] = []
 
 
 # Ask (Pregunta al LLM - RAG)
