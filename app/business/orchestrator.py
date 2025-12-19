@@ -36,7 +36,7 @@ class AuditOrchestrator:
         # Caso: pregunta fuera de tópico
         if intent == "OFF_TOPIC":
             return AskResponse(
-                answer="Lo siento, pero esa pregunta se escapa de mis funciones, por favor introduce una pregunta válida :D",
+                answer="Lo siento, pero esa pregunta se escapa de mis funciones, por favor introduce una pregunta válida",
                 grounded=False, # No usa contexto, es hardcoded
                 context_used=None,
                 similarity_score=0.0
