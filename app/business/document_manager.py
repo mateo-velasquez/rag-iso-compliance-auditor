@@ -110,6 +110,6 @@ class DocumentManager:
         Logger.add_to_log("info", f"Borrado lógico exitoso: {doc_id}")
         
         return DocumentResponse(
-            message="Documento subido correctamente",
+            message="Documento borrado correctamente",
             document_id=doc_id
         )
