@@ -2,6 +2,7 @@ from typing import List
 from fastapi import UploadFile, HTTPException
 from app.services.external.pdf_processor import PDFProcessor
 from app.db.repository.document_repo import DocumentRepository
+from app.db.repository.vector_repo import VectorRepository
 from app.core.logger import Logger
 from app.db.models.documents import UserDocumentDB
 from app.schemas.documents import DocumentResponse, DocumentResponseComplete
@@ -10,6 +11,7 @@ class DocumentManager:
     def __init__(self):
         self.pdf_processor = PDFProcessor()
         self.doc_repo = DocumentRepository()
+        self.vector_repo = VectorRepository()
 
     # Método que transforma los formatos
     def _map_to_response_complete(self, doc_data: dict) -> DocumentResponseComplete:
@@ -28,6 +30,23 @@ class DocumentManager:
         except Exception as e:
             Logger.add_to_log("error", f"Error mapeando documento {doc_data.get('_id')}: {e}")
             raise HTTPException(status_code=500, detail="Error interno procesando datos del documento")
+        
+    async def _process_vectors(self, file_path: str, doc_id: str, filename: str):
+        # Extraemos el texto del PDF
+        Logger.add_to_log("info", f"Comenzando el procesamiento vectorial para el archivo con ID: {doc_id}")
+        full_text = self.pdf_processor.extract_text(file_path)
+        
+        if not full_text:
+            Logger.add_to_log("warning", f"El archivo {doc_id} no tiene texto extraíble.")
+            return
+
+        # Preparamos los datos para ChromaDB
+        chunks = [full_text]
+        ids = [doc_id]
+        metadatas = [{"document_id": doc_id, "filename": filename}]
+
+        # Guardamos en el repositorio
+        self.vector_repo.add_chunks(chunks, metadatas, ids)
 
     # Permite cargar un archivo PDF
     async def handle_upload(self, file: UploadFile) -> DocumentResponse:
@@ -51,6 +70,9 @@ class DocumentManager:
             
             await self.doc_repo.reactivate(doc_id)
             
+            # Al reactivar, nos aseguramos que esté en los vectores
+            await self._process_vectors(file_path, doc_id, file.filename)
+
             return DocumentResponse(
                 message="El archivo existía en papelera y ha sido restaurado.",
                 document_id=doc_id
@@ -64,6 +86,16 @@ class DocumentManager:
         )
 
         await self.doc_repo.create(new_doc)
+        doc_id = new_doc.id
+
+        # Procesamiento vectorial
+        try:
+            await self._process_vectors(file_path, doc_id, file.filename)
+        except Exception as e:
+            # Rollback: Si falla vectorizar, borramos de Mongo para no dejar datos corruptos
+            await self.doc_repo.delete_by_id(doc_id)
+            Logger.add_to_log("error", f"Fallo vectorización. Rollback ejecutado: {e}")
+            raise HTTPException(status_code=500, detail="Error procesando el contenido del archivo.")
 
         return DocumentResponse(
             message="Documento subido correctamente",
@@ -106,10 +138,14 @@ class DocumentManager:
         if not doc:
             raise HTTPException(status_code=404, detail="Documento no encontrado")
 
-        await self.doc_repo.delete_by_id(doc_id)
+        await self.doc_repo.delete_by_id(doc_id) # Lo borra de mongo (lógico)
+
+        self.vector_repo.delete_by_doc_id(doc_id) # Lo borra de la base vectorial
+
         Logger.add_to_log("info", f"Borrado lógico exitoso: {doc_id}")
         
         return DocumentResponse(
             message="Documento borrado correctamente",
             document_id=doc_id
         )
+    

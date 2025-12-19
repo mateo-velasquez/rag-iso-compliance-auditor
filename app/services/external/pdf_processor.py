@@ -2,6 +2,7 @@ import os
 import hashlib
 from fastapi import UploadFile
 from app.core.logger import Logger
+from pypdf import PdfReader
 
 class PDFProcessor:
     UPLOAD_DIR = "data/files"
@@ -36,3 +37,29 @@ class PDFProcessor:
         except Exception as e:
             Logger.add_to_log("error", f"Error procesando PDF: {e}")
             raise e
+        
+    def extract_text(self, file_path: str) -> str:
+        Logger.add_to_log("info", f"Extrayendo texto de: {file_path}")
+        text_content = []
+        
+        try:
+            # Cargamos el lector de PDF
+            reader = PdfReader(file_path)
+            
+            # Recorremos cada página del archivo
+            for page in reader.pages:
+                text = page.extract_text()
+                # Solo agregamos si hay texto real (evitamos páginas vacías)
+                if text:
+                    text_content.append(text)
+            
+            # Unimos todo el texto con saltos de línea
+            full_text = "\n".join(text_content)
+            
+            Logger.add_to_log("info", f"Texto extraído con éxito ({len(full_text)} caracteres).")
+            return full_text
+
+        except Exception as e:
+            Logger.add_to_log("error", f"Fallo al leer el PDF: {e}")
+            # Retornamos string vacío para no romper el flujo, pero con log de error
+            return ""
