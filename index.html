@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleo | Asistente de Auditoría ISO</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --bg-color: #f3f4f6;
+            --chat-bg: #ffffff;
+            --text-color: #1f2937;
+            --user-msg-bg: #dbeafe;
+            --bot-msg-bg: #f3f4f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR (Upload) --- */
+        .sidebar {
+            width: 300px;
+            background-color: white;
+            padding: 2rem;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .upload-section {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 2rem 1rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary-color);
+            background-color: #eff6ff;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 1rem;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        #file-status {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            color: #64748b;
+        }
+
+        /* --- CHAT AREA --- */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-color);
+        }
+
+        .chat-header {
+            background-color: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 12px;
+            line-height: 1.5;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background-color: var(--user-msg-bg);
+            color: var(--secondary-color);
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .message .meta {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .typing-indicator {
+            align-self: flex-start;
+            background-color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #64748b;
+            display: none; /* Oculto por defecto */
+        }
+
+        /* --- INPUT AREA --- */
+        .input-area {
+            background-color: white;
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            🦁 CLEO | Auditoría
+        </div>
+        
+        <div class="upload-section">
+            <p style="margin-bottom: 10px; color: #4b5563;">Subir Documento (PDF)</p>
+            <input type="file" id="pdfInput" accept=".pdf" style="width: 100%;">
+            <button class="btn" onclick="uploadPDF()" id="btnUpload">Cargar PDF</button>
+            <div id="file-status">Esperando archivo...</div>
+        </div>
+
+        <div style="font-size: 0.8rem; color: #9ca3af; margin-top: auto;">
+            Sistema RAG ISO 9001<br>
+            v1.0.0
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h3>Chat de Consulta</h3>
+            <span style="font-size: 0.8rem; color: #22c55e;">● Sistema Operativo</span>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="message bot">
+                Hola, soy Cleo. He cargado mis módulos de seguridad y auditoría. 
+                <br>Por favor, carga un PDF a la izquierda si quieres que lo analice, o hazme una pregunta.
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                Cleo está analizando...
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Escribe tu pregunta sobre la norma..." onkeypress="handleKeyPress(event)">
+            <button class="btn" style="width: auto;" onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN: Cambia esto si tu backend está en otro puerto
+        const API_BASE_URL = "http://127.0.0.1:8080"; 
+
+        // --- FUNCIÓN 1: SUBIR PDF ---
+        async function uploadPDF() {
+            const fileInput = document.getElementById('pdfInput');
+            const statusDiv = document.getElementById('file-status');
+            const btn = document.getElementById('btnUpload');
+
+            if (fileInput.files.length === 0) {
+                alert("Por favor selecciona un archivo PDF primero.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append("file", file); // Asegúrate que en tu backend el parámetro sea 'file'
+
+            btn.disabled = true;
+            statusDiv.innerText = "Subiendo y vectorizando...";
+
+            try {
+                // Ajusta el endpoint según tu router (ej: /upload-pdf o /documents/upload)
+                const response = await fetch(`${API_BASE_URL}/cleo/documents/upload-pdf`, { 
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerText = "✅ Archivo procesado correctamente.";
+                    statusDiv.style.color = "green";
+                } else {
+                    statusDiv.innerText = "❌ Error al subir.";
+                    statusDiv.style.color = "red";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                statusDiv.innerText = "Error de conexión.";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // --- FUNCIÓN 2: CHATEAR ---
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // 1. Mostrar mensaje del usuario
+            addMessageToChat(message, 'user');
+            input.value = '';
+            
+            // 2. Mostrar "Escribiendo..."
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+
+            try {
+                // 3. Petición al Backend
+                const response = await fetch(`${API_BASE_URL}/cleo/audit/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: message }) // Formato AskRequest
+                });
+
+                const data = await response.json();
+
+                // 4. Mostrar respuesta de Cleo
+                typingIndicator.style.display = 'none';
+                
+                // Preparamos info extra (Score y Contexto)
+                let metaInfo = "";
+                if (data.grounded) {
+                    const scorePct = (data.similarity_score * 100).toFixed(1);
+                    metaInfo = `Confianza: ${scorePct}%`;
+                } else {
+                    metaInfo = "Respuesta generada (Sin contexto)";
+                }
+
+                addMessageToChat(data.answer, 'bot', metaInfo);
+
+            } catch (error) {
+                console.error("Error:", error);
+                typingIndicator.style.display = 'none';
+                addMessageToChat("Lo siento, hubo un error de conexión con el servidor.", 'bot');
+            }
+        }
+
+        // --- UTILIDADES ---
+        function addMessageToChat(text, sender, meta = null) {
+            const chatBox = document.getElementById('chatBox');
+            const typingIndicator = document.getElementById('typingIndicator');
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', sender);
+            
+            // Convertir saltos de línea a <br>
+            let formattedText = text.replace(/\n/g, '<br>');
+            
+            let content = `<div>${formattedText}</div>`;
+            
+            if (meta) {
+                content += `<div class="meta"><span>${meta}</span></div>`;
+            }
+
+            msgDiv.innerHTML = content;
+
+            // Insertar antes del indicador de typing
+            chatBox.insertBefore(msgDiv, typingIndicator);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
