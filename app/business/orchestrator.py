@@ -1,30 +1,110 @@
 # Archivo para orquestar toda la lógica de negocios
 from typing import List
-from fastapi import HTTPException
 from app.core.logger import Logger
 from app.db.repository.vector_repo import vector_repo
-from app.schemas.audit import SearchResult 
+from app.schemas.audit import SearchResult, AskResponse
+from app.business.guardrails import Guardrails
+from app.business.triage import TriageService
+from app.business.rag_pipeline import RagPipeline
 
-# Clases Placeholder (De momento lo dejo así para que no falle)
-class RagPipeline:
-    pass
-
-class Guardrails:
-    pass
-
+# Clase orquestador
 class AuditOrchestrator:
     def __init__(self):
         # cargamos los otros business
         self.rag_pipeline = RagPipeline()
         self.guardrails = Guardrails()
+        self.triage = TriageService()
         self.vector_db = vector_repo
 
-    async def answer_question(self, question: str):
-        # 1. Guardrails Input
-        # 2. Triage
-        # 3. RAG Pipeline
-        # 4. Guardrails Output
-        pass
+    async def answer_question(self, question: str) -> AskResponse:
+        # Primero valido la pregunta antes de ingresar en el RAG
+        is_valid_input, rejection_reason = self.guardrails.validate_input(question)
+        if not is_valid_input:
+            Logger.add_to_log("warning", f"Orchestrator: Input rechazada: {rejection_reason}")
+            # Retornamos estructura válida pero indicando que no está fundamentada (grounded=False)
+            return AskResponse(
+                answer=rejection_reason,
+                context_used=None,
+                similarity_score=None,
+                grounded=False
+            )
+        
+        # Segundo llamo al Triage para ver la Intención:
+        intent = self.triage.predict_intent(question)
+        Logger.add_to_log("info", f"Orchestrator: Intención detectada -> {intent}")
+
+        # Caso: pregunta fuera de tópico
+        if intent == "OFF_TOPIC":
+            return AskResponse(
+                answer="Lo siento, pero esa pregunta se escapa de mis funciones, por favor introduce una pregunta válida :D",
+                grounded=False, # No usa contexto, es hardcoded
+                context_used=None,
+                similarity_score=0.0
+            )
+        
+        # Caso: saludo
+        elif intent == "GREETING_HI":
+            return AskResponse(
+                answer="¡Hola! Soy Cleo, tu asistente de auditoría ISO. ¿En qué puedo ayudarte hoy?",
+                grounded=False, # No usa contexto, es hardcoded
+                context_used=None,
+                similarity_score=0.0
+            )
+        
+        # Caso: Despedida
+        elif intent == "GREETING_BYE":
+            return AskResponse(
+                answer="¡Hasta Luego! Fue un verdadero placer ayudarte ¡Vuelve cuando quieras!",
+                grounded=False, # No usa contexto, es hardcoded
+                context_used=None,
+                similarity_score=0.0
+            )
+
+        elif intent == "ISO_QUERY":
+            # DELEGACIÓN: Llamamos al pipeline que se encarga de buscar y generar
+            generated_answer, context_docs, top_score = await self.rag_pipeline.run(question)
+            
+            # Caso: El pipeline no encontró documentos (retornó lista vacía)
+            if not context_docs:
+                Logger.add_to_log("error", f"Orchestrator: Rag_pipeline fallado")
+                return AskResponse(
+                    answer="¡Lo siento! No encontré información para tu pregunta",
+                    grounded=False,
+                    context_used=None,
+                    similarity_score=0.0
+                )
+            
+            # Recuperamos el snippet del mejor documento para mostrarlo como evidencia
+            best_doc_snippet = context_docs[0]['content_snippet']
+            
+            # GUARDRAILS OUTPUT (Solo se aplica si generamos contenido con IA)
+            is_safe_output, output_reason = self.guardrails.validate_output(generated_answer)
+            
+            if not is_safe_output:
+                Logger.add_to_log("warning", f"Orchestrator: Output rechazada: {output_reason}")
+                return AskResponse(
+                    answer="Lo siento, la respuesta generada no cumple con las políticas de seguridad.",
+                    context_used=None, 
+                    similarity_score=None,
+                    grounded=False
+                )
+
+            # ÉXITO: Retornamos la respuesta generada y validada
+            return AskResponse(
+                answer=generated_answer,
+                context_used=best_doc_snippet,
+                similarity_score=top_score,
+                grounded=True
+            )
+
+        # CASO E: FALLBACK (Si el Triage devuelve algo inesperado)
+        else:
+            return AskResponse(
+                answer="No he podido entender tu intención. Por favor, reformula la pregunta.",
+                grounded=False,
+                context_used=None,
+                similarity_score=0.0
+            )
 
     # Método para realizar búsqueda semántica pura: Este método es utilizado para verificar fuentes o debugging
     async def perform_search(self, query: str, k: int) -> List[SearchResult]:
@@ -52,22 +132,3 @@ class AuditOrchestrator:
             # Elevamos el error para que el router lo maneje o retorne 500
             raise e
         
-    async def answer_question(self, question: str):
-        # 1. Guardrails Input (Validar que no sea una pregunta maliciosa)
-        # TODO: Implementar validación de entrada
-        
-        # 2. Retrieval (Búsqueda de contexto)
-        # Reutilizamos el método de búsqueda que acabamos de crear arriba
-        context_docs = await self.perform_search(question, k=3)
-        
-        # 3. RAG Pipeline (Generación de respuesta)
-        # Aquí llamaríamos al LLM pasándole 'question' y 'context_docs'
-        # TODO: Implementar llamada a LLM
-        
-        # 4. Guardrails Output (Validar la respuesta del bot)
-        # TODO: Implementar validación de salida
-        
-        return {
-            "status": "work_in_progress", 
-            "context_found": len(context_docs)
-        }
