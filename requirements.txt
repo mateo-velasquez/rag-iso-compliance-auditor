@@ -1,11 +1,11 @@
 cohere
 motor
 python-dotenv
-ipywidgets
-scikit-learn
 chromadb
 langchain
 langchain_community
+langchain-openai
+tiktoken
 fastapi
 uvicorn
 pydantic
