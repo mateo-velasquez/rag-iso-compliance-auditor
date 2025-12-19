@@ -17,7 +17,7 @@ class TriageService:
                     {"role": "user", "content": text}
                 ],
                 temperature=0,
-                sed=123
+                seed=123
             )
             raw_content = response.message.content[0].text
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from app.business.orchestrator import AuditOrchestrator
-from app.schemas.audit import SearchQuery, SearchResult
+from app.schemas.audit import SearchQuery, SearchResult, AskRequest, AskResponse
 
 # Creamos el router específico
 router = APIRouter(
@@ -15,9 +15,9 @@ def get_orchestrator():
 # -------------------------------- ENDPOINTS ------------------------------------------#
 
 # Endpoint del Chatbot: Responde preguntas usando contexto ISO + Docs Usuario.
-@router.post("/ask", status_code=201)
+@router.post("/ask", status_code=201, response_model=AskResponse)
 async def ask_cleo(
-    query_params: SearchQuery, 
+    query_params: AskRequest, 
     orchestrator: AuditOrchestrator = Depends(get_orchestrator)
 ):
     # Delegamos al orquestador la lógica compleja del RAG

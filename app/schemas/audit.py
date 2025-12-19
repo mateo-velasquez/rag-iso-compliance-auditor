@@ -22,7 +22,7 @@ class AuditResponse(BaseModel):
 
 # Ask (Pregunta al LLM - RAG)
 class AskRequest(BaseModel):
-    question: str = Field(..., min_length=1, description="Pregunta del usuario")
+    query: str = Field(..., min_length=1, description="Pregunta del usuario")
 
 class AskResponse(BaseModel):
     answer: str

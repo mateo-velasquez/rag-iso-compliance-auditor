@@ -155,7 +155,7 @@ class SystemsPrompts:
     Output: {"categoria": "ISO_QUERY", "analisis": "Pregunta técnica sobre ISO 9001"}
     """
 
-    def system_prompt_RAG(context: str):
+    def system_prompt_RAG(self, context: str):
         return f"""
         # Rol:
         Sos Cleo, un asistente virtual cuya misión es facilitar y acelerar los procesos de auditoria interna y extern en Normas ISO (9001, 27001, etc.).
