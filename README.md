@@ -25,7 +25,7 @@ Utilizando una arquitectura **RAG (Retrieval-Augmented Generation)**, el sistema
 
 El sistema implementa un pipeline de RAG moderno que asegura que el modelo de lenguaje (LLM) solo responda basándose en la información recuperada de la base de conocimiento vectorial.
 
-![RAG Architecture](Images\RAG-architecture.png)
+![RAG Architecture](Images/RAG-architecture.png)
 
 ### Flujo de Datos
 1.  **Ingesta (Data Ingestion):** Los documentos PDF de la norma son procesados y divididos en fragmentos lógicos (*chunking*).
