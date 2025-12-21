@@ -73,6 +73,7 @@ RAG-ISO-COMPLIANCE-AUDITOR/
 │   └── services/        # Integraciones Externas (Cohere, PDF Parsing)
 │
 ├── docker/              # Dockerfiles para despliegue
+├── logs/                # Logging de las actividades del sistema
 ├── tests/               # Tests unitarios y de integración
 ├── .env                 # Variables de entorno (No incluido en repo)
 ├── main.py              # Punto de entrada de la aplicación
