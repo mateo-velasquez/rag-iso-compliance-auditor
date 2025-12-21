@@ -31,6 +31,7 @@ class DocumentManager:
             Logger.add_to_log("error", f"Error mapeando documento {doc_data.get('_id')}: {e}")
             raise HTTPException(status_code=500, detail="Error interno procesando datos del documento")
         
+    # Método para procesar vectorialmente un archivo
     async def _process_vectors(self, file_path: str, doc_id: str, filename: str):
         # Extraemos el texto del PDF
         Logger.add_to_log("info", f"Comenzando el procesamiento vectorial para el archivo con ID: {doc_id}")

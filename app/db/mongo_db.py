@@ -1,6 +1,7 @@
 import motor.motor_asyncio
 from app.core.config import settings  
 from app.core.logger import Logger 
+import certifi
 
 class MongoConnection:
     _instance = None
@@ -35,7 +36,10 @@ class MongoConnection:
             self.client = motor.motor_asyncio.AsyncIOMotorClient(
                 mongo_uri,
                 maxPoolSize=10, 
-                minPoolSize=1
+                minPoolSize=1,
+                #tlsCAFile=certifi.where()
+                tls=True,
+                tlsAllowInvalidCertificates=True
             )
             
             self.db = self.client[settings.MONGO_DB_NAME]
