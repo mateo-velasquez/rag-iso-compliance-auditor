@@ -24,7 +24,9 @@ Utilizando una arquitectura **RAG (Retrieval-Augmented Generation)**, el sistema
 ## 🏗️ Arquitectura Técnica
 
 El sistema implementa un pipeline de RAG moderno que asegura que el modelo de lenguaje (LLM) solo responda basándose en la información recuperada de la base de conocimiento vectorial.
+![System Architecture](Images/Cleo-Arquitectura.jpg)
 
+Internamente el sistema del RAG sigue la siguiente lógica:
 ![RAG Architecture](Images/RAG-architecture.png)
 
 ### Flujo de Datos
