@@ -15,7 +15,6 @@ class Guardrails:
     def _parse_json_response(self, raw_text: str) -> dict:
         try:
             cleaned_text = raw_text.replace("```json", "").replace("```", "").strip() # Limpiamos bloques de código markdown si el LLM los agrega
-            print(cleaned_text)
             return json.loads(cleaned_text) # Convertimos el string a diccionario Python
 
         except json.JSONDecodeError:
@@ -39,7 +38,6 @@ class Guardrails:
                 temperature=0,
                 seed=123
             )
-            print("Validando respuesta:",response)
             
             # Validación defensiva por si la respuesta viene vacía
             if not response.message or not response.message.content:
@@ -59,7 +57,6 @@ class Guardrails:
         
         # Obtenemos el veredicto del LLM
         result = self._ask_cohere_judge(systemsPrompts.system_prompt_guardrail_input, question)
-        print(f"El modelo respondión esto: {result}")
         
         # Extraemos las variables del diccionario
         es_publicable = result.get("publicable", "No") # Si no viene la clave que tome "No"
