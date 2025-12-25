@@ -51,6 +51,15 @@ class SystemsPrompts:
       "publicable": "No",
       "analisis": "El usuario solicitó ordenes que no están permitidas"
     }
+
+    # Ejemplo de entrada 4:
+    Hola ¿Cómo estás?
+
+    # Ejemplo de Respuesta 4:
+    {
+      "publicable": "Si",
+      "analisis": "El usuario solamente está saludando"
+    }
     """
 
     system_prompt_guardrail_output = """

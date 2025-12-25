@@ -11,7 +11,7 @@ class RagPipeline:
         # Usamos la Factory para obtener el cliente
         self.client = LLMFactory.create_cohere_client_v2()
         self.vector_db = vector_repo
-        self.model = "command-r-plus-08-2024" # Modelo potente para generación
+        self.model = "command-a-03-2025" # Modelo potente para generación
 
     # Método que ejecuta el pipeline completo
     async def run(self, question: str) -> Tuple[str, List[Dict], float]:

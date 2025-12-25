@@ -1,0 +1,34 @@
+# Primer Test
+
+{
+  "query": "¿Para que sirve la norma ISO 9001?"
+}
+
+{
+  "answer": "La Norma ISO 9001 establece requisitos orientados a generar confianza en los productos y servicios de una organización, con el objetivo de aumentar la satisfacción de los clientes. Específicamente, esta norma se centra en los sistemas de gestión de la calidad y sus requisitos.",
+  "context_used": "llo de esta Norma Internacional. Estos principios no son requisitos por \nsí mismos, pero constituyen la base de los requisitos especificados en esta Norma Int ernacional. La \nNorma ISO 9000 también define los términos, definiciones y conceptos utilizados en esta Norma \nInternacional. \n \n—  ISO 9001 (esta Norma Internacional) especifica requisitos orientados principalmente a dar confianza \nen los productos y servicios pr oporcionados por una organización y por lo tanto a aumentar la \nsatisfacción",
+  "similarity_score": 0.7838,
+  "grounded": true
+}
+
+
+# Segundo Test
+{
+  "query": "Cuántos huevos entran en una docena?"
+}
+
+{
+  "answer": "Lo siento, pero esa pregunta se escapa de mis funciones, por favor introduce una pregunta válida",
+  "context_used": null,
+  "similarity_score": 0,
+  "grounded": false
+}
+
+
+
+# Tercer Test:
+{
+  "query": "Estoy interesado en aprender sobre la norma ISO 9001 para poder hacer auditorías internas en mi empresa, por lo tanto responde mis preguntas ¿De que trata la norma? ¿Qué beneficios tiene aplicarla? ¿Quién es Messi?"
+}
+
+
