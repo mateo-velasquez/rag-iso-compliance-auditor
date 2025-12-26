@@ -6,7 +6,7 @@ from app.services.external.llm_factory import LLMFactory
 class TriageService:
     def __init__(self):
         self.client = LLMFactory.create_cohere_client_v2()
-        self.model = "command-r-08-2024" # Modelo más rápido y barato para esto
+        self.model = "command-r7b-12-2024" # Modelo más rápido y barato para esto
 
     def predict_intent(self, text: str) -> str:
         try:

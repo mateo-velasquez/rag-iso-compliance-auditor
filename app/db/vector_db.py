@@ -1,1 +1,0 @@
-# Cliente Chroma/Qdrant (Search Service)

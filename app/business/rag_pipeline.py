@@ -31,8 +31,10 @@ class RagPipeline:
             [f"Documento: {doc['title']}\nContenido: {doc['content_snippet']}" for doc in retrieved_docs]
         )
 
+        history_text = ""
+
         # Definimos el Prompt del Sistema con la personalidad y reglas
-        system_prompt = systemsPrompts.system_prompt_RAG(context_text)
+        system_prompt = systemsPrompts.system_prompt_RAG(context_text, history_text)
 
         # Llamada al LLM
         Logger.add_to_log("info", "RagPipeline: Generando respuesta con LLM...")

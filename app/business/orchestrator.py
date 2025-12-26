@@ -23,7 +23,7 @@ class AuditOrchestrator:
             Logger.add_to_log("warning", f"Orchestrator: Input rechazada: {rejection_reason}")
             # Retornamos estructura válida pero indicando que no está fundamentada (grounded=False)
             return AskResponse(
-                answer=rejection_reason,
+                answer="Lo siento pero no puedo responderte esa pregunta",
                 context_used=None,
                 similarity_score=None,
                 grounded=False

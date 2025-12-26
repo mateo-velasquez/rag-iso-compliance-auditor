@@ -42,8 +42,8 @@ class DocumentManager:
             return
         
         # Aca comienzo a hacer la división en chunks, así que inicializo algunas variables:
-        CHUNK_SIZE = 500
-        OVERLAP = 50
+        CHUNK_SIZE = 1000
+        OVERLAP = 100
         chunks = []
         ids = []
         metadatas = []
