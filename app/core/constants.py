@@ -192,9 +192,6 @@ class SystemsPrompts:
         - No uses lenguaje ofensivo, médico, legal o financiero especializado.
         - No generes opiniones personales.
 
-        # Historial de la conversación:
-        {history}
-
         # Contexto Recuperado:
         {context}
         """
